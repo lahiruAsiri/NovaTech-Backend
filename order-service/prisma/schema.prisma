@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  status      String      @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  total       Float
+  createdAt   DateTime    @default(now())
+  items       OrderItem[]
+  transaction Transaction?
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  quantity  Int
+  price     Float
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    String   // SUCCESS, FAILED
+  amount    Float
+  createdAt DateTime @default(now())
+}
