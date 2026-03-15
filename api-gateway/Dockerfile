@@ -1,4 +1,6 @@
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
@@ -10,7 +12,9 @@ COPY . .
 
 RUN npm run build
 
-FROM node:20-alpine
+FROM node:20-slim
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
