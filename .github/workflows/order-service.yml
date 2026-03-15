@@ -23,15 +23,19 @@ jobs:
         run: npx prisma db push
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_ORDER }}
-      - run: npm run build
       
-      # Mock Snyk
-      - name: Run Snyk vulnerability check
-        run: echo "Snyk ran successfully."
-        
-      # Mock SonarCloud
-      - name: Run SonarCloud validation
-        run: echo "SonarCloud ran successfully."
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./order-service
+          push: true
+          tags: lahiruasiri2/novatech-order-service:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,4 +47,4 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME_ORDER }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_ORDER }}
-          package: order-service
+          images: lahiruasiri2/novatech-order-service:latest
