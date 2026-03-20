@@ -1,0 +1,41 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String   // EMAIL, SMS
+  subject   String
+  body      String
+  status    String   // SENT, FAILED
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  service   String
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
+
+model Template {
+  id        Int      @id @default(autoincrement())
+  type      String   @unique
+  content   String
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  email     String
+  phone     String?
+}
