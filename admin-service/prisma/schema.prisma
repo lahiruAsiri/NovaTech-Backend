@@ -1,0 +1,43 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique // e.g., ADMIN, USER
+  users User[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  roleId    Int
+  role      Role     @relation(fields: [roleId], references: [id])
+  profile   Profile?
+  addresses Address[]
+  createdAt DateTime @default(now())
+}
+
+model Profile {
+  id     Int    @id @default(autoincrement())
+  name   String
+  phone  String?
+  userId Int    @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Address {
+  id      Int    @id @default(autoincrement())
+  street  String
+  city    String
+  zip     String
+  userId  Int
+  user    User   @relation(fields: [userId], references: [id])
+}
