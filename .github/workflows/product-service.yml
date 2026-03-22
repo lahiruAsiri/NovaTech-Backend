@@ -43,7 +43,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --file=product-service/package.json
+          args: --severity-threshold=high --file=product-service/package.json --org=${{ secrets.SNYK_ORG_ID }}
 
       # Real SonarCloud
       - name: SonarCloud Scan
