@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-// Triggering Azure Deployment Migration
+// Triggering Azure Deployment Migration & Snyk Scan Fix
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
