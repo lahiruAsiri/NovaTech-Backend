@@ -37,6 +37,23 @@ jobs:
           push: true
           tags: lahiruasiri2/novatech-product-service:latest
 
+      # Real Snyk
+      - name: Run Snyk vulnerability check
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      # Real SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: product-service
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
