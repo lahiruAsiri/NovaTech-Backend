@@ -46,6 +46,7 @@ export class NotificationsService {
             console.log(`Email successfully sent to ${recipientEmail}`);
         } catch (err) {
             console.error('Failed to send real email', err.message);
+            throw new Error(`SMTP Failure: ${err.message}`);
         }
 
         const notif = await this.prisma.notification.create({

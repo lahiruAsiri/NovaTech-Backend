@@ -20,11 +20,19 @@ export class NotifInternalService {
 
   async sendEmail(data: any) {
     // Forward to Notification Service internal route
-    const response = await lastValueFrom(
-      this.httpService.post(`${process.env.NOTIF_SERVICE_URL || 'http://localhost:3004'}/notifications/send-email`, data, {
-        headers: { 'x-user-role': 'ADMIN' } // Internal role bypass
-      })
-    );
-    return response.data;
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(`${process.env.NOTIF_SERVICE_URL || 'http://localhost:3004'}/notifications/send-email`, data, {
+          headers: { 'x-user-role': 'ADMIN' } // Internal role bypass
+        })
+      );
+      return response.data;
+    } catch (e) {
+      console.error('DEBUG: Gateway NotifInternalService error', e.message);
+      if (e.response) {
+        console.error('DEBUG: Response Data', JSON.stringify(e.response.data));
+      }
+      throw e;
+    }
   }
 }

@@ -76,6 +76,7 @@ const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
 
         // 6. Notify user
         console.log(`DEBUG: Sending order confirmation email for order #${order.id}...`);
+        let notificationStatus = { sent: false, error: null };
         try {
             await lastValueFrom(this.httpService.post(`${process.env.GATEWAY_URL || 'http://localhost:3000'}/api/notif-internal/send-email`, {
                 userId,
@@ -83,12 +84,20 @@ const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
                 body: `Thank you for your order totaling $${total}`
             }));
             console.log('DEBUG: Email notification trigger sent successfully.');
+            notificationStatus.sent = true;
         } catch (e) { 
             console.error('DEBUG: Failed to trigger notification', e.message);
+            notificationStatus.error = e.message;
+            if (e.response) {
+                notificationStatus.error += ` - Status: ${e.response.status} - Data: ${JSON.stringify(e.response.data)}`;
+            }
         }
 
         console.log(`DEBUG: Checkout complete for Order #${order.id}`);
-        return order;
+        return {
+            ...order,
+            notification: notificationStatus
+        };
     }
 
     async getHistory(userId: number) {
