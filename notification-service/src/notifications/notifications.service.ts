@@ -2,10 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class NotificationsService {
-    constructor(private prisma: PrismaService, private httpService: HttpService) { }
+    private transporter: nodemailer.Transporter;
+
+    constructor(private prisma: PrismaService, private httpService: HttpService) {
+        // Initialize the email transporter
+        this.transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.SMTP_USER, // Your Gmail address
+                pass: process.env.SMTP_PASS, // Your Gmail App Password
+            },
+        });
+    }
 
     async sendEmail(userId: number, subject: string, body: string) {
         let recipientEmail = 'unknown@novatech.com';
@@ -19,12 +31,31 @@ export class NotificationsService {
             console.error('Failed to fetch recipient email', e?.message);
         }
 
+        // Send the real email via Gmail
+        try {
+            await this.transporter.sendMail({
+                from: `"NovaTech Support" <${process.env.SMTP_USER}>`,
+                to: recipientEmail,
+                subject: subject,
+                text: body,
+                html: `<div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2 style="color: #4f46e5;">NovaTech Notification</h2>
+                        <p>${body}</p>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                        <small style="color: #666;">This is an automated message from NovaTech Cloud System.</small>
+                       </div>`,
+            });
+            console.log(`Email successfully sent to ${recipientEmail}`);
+        } catch (err) {
+            console.error('Failed to send real email', err.message);
+        }
+
         const notif = await this.prisma.notification.create({
             data: { userId, type: 'EMAIL', subject, body: `To: ${recipientEmail}\n\n${body}`, status: 'SENT' }
         });
-        // Record in audit log
+        
         await this.prisma.auditLog.create({
-            data: { service: 'NOTIFICATIONS', action: 'SEND_EMAIL', details: `Enriched email sent to ${recipientEmail}` }
+            data: { service: 'NOTIFICATIONS', action: 'SEND_EMAIL', details: `Real email sent to ${recipientEmail} via Gmail SMTP` }
         });
         return notif;
     }
