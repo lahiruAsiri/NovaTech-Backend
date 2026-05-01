@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // Triggering Azure Admin Deploy
+  // Triggering Azure Admin Deploy1
   const config = new DocumentBuilder()
     .setTitle('Admin & User Service')
     .setDescription('The Admin & User microservice API description')
