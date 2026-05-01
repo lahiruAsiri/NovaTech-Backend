@@ -9,9 +9,21 @@ export class AdminUsersService {
   constructor(private readonly httpService: HttpService) {}
 
   private getHeaders(user: any) {
+    if (!user) return {};
+    const userId = (user.userId || user.sub);
+    const role = user.role;
+    
+    console.log(`DEBUG: Gateway Service - Preparing headers for userId: ${userId}, role: ${role}`);
+    
+    // Ensure we don't send "undefined" as a string
+    if (userId === undefined || userId === null) {
+      console.warn('DEBUG: Gateway Service - userId is missing!');
+      return { 'x-user-role': role };
+    }
+
     return {
-      'x-user-id': user.userId.toString(),
-      'x-user-role': user.role,
+      'x-user-id': userId.toString(),
+      'x-user-role': role,
     };
   }
 

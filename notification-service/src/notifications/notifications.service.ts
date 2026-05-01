@@ -23,9 +23,7 @@ export class NotificationsService {
         let recipientEmail = 'unknown@novatech.com';
         try {
             const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
-            const response = await lastValueFrom(this.httpService.get(`${gatewayUrl}/api/admin-users/profile`, {
-                headers: { 'x-user-id': userId.toString(), 'x-user-role': 'ADMIN' }
-            }));
+            const response = await lastValueFrom(this.httpService.get(`${gatewayUrl}/api/admin-internal/profile/${userId}`));
             recipientEmail = response.data.email;
         } catch (e) {
             console.error('Failed to fetch recipient email', e?.message);

@@ -10,6 +10,11 @@ export class NotifInternalController {
     return this.internalService.logEvent(body);
   }
 
+  @Post('send-email')
+  sendEmail(@Body() body: any) {
+    return this.internalService.sendEmail(body);
+  }
+
   @Post('stock-alert')
   sendStockAlert(@Body() body: any) {
     return this.internalService.sendStockAlert(body);

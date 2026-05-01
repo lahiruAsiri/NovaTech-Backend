@@ -56,19 +56,29 @@ export class AuthService {
     }
 
     async login(data: any) {
-        const user = await this.prisma.user.findUnique({
-            where: { email: data.email },
-            include: { role: true },
-        });
+        console.log(`DEBUG: Attempting login for email: ${data.email}`);
+        try {
+            console.log('DEBUG: Querying database...');
+            const user = await this.prisma.user.findUnique({
+                where: { email: data.email },
+                include: { role: true },
+            });
+            console.log('DEBUG: Database query complete. User found:', user ? 'YES' : 'NO');
 
-        if (!user || !(await bcrypt.compare(data.password, user.password))) {
-            throw new UnauthorizedException('Invalid credentials');
+            if (!user || !(await bcrypt.compare(data.password, user.password))) {
+                console.log('DEBUG: Invalid credentials');
+                throw new UnauthorizedException('Invalid credentials');
+            }
+
+            console.log('DEBUG: Login successful, signing token...');
+            const payload = { sub: user.id, email: user.email, role: user.role.name };
+            return {
+                access_token: this.jwtService.sign(payload),
+                user: { id: user.id, email: user.email, role: user.role.name }
+            };
+        } catch (error) {
+            console.error('DEBUG: Login Error:', error.message);
+            throw error;
         }
-
-        const payload = { sub: user.id, email: user.email, role: user.role.name };
-        return {
-            access_token: this.jwtService.sign(payload),
-            user: { id: user.id, email: user.email, role: user.role.name }
-        };
     }
 }

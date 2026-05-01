@@ -8,11 +8,19 @@ export class UsersService {
     constructor(private prisma: PrismaService, private httpService: HttpService) { }
 
     async getProfile(userId: number) {
+        console.log(`DEBUG: Admin Service - Fetching profile for userId: ${userId} (Type: ${typeof userId})`);
+        if (!userId || isNaN(userId)) {
+            console.error('DEBUG: Invalid userId received!');
+            throw new NotFoundException('Invalid User ID');
+        }
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
             include: { profile: true },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) {
+            console.error(`DEBUG: User with ID ${userId} not found in database.`);
+            throw new NotFoundException('User not found');
+        }
         return user;
     }
 

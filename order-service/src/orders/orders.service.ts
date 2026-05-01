@@ -67,21 +67,27 @@ const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
         });
 
         // 5. Reduce stock via Gateway Internal Route
+        console.log(`DEBUG: Reducing stock for ${cartItems.length} items...`);
         for (const item of cartItems) {
             await lastValueFrom(this.httpService.patch(`${process.env.GATEWAY_URL || 'http://localhost:3000'}/api/product-internal/stock/reduce`, {
                 items: [{ productId: item.productId, quantity: item.quantity }]
-            })).catch(e => { console.error('Failed to reduce stock'); });
+            })).catch(e => { console.error('DEBUG: Failed to reduce stock', e.message); });
         }
 
         // 6. Notify user
+        console.log(`DEBUG: Sending order confirmation email for order #${order.id}...`);
         try {
-            await lastValueFrom(this.httpService.post(`${process.env.GATEWAY_URL || 'http://localhost:3000'}/api/notif-notifications/send-email`, {
+            await lastValueFrom(this.httpService.post(`${process.env.GATEWAY_URL || 'http://localhost:3000'}/api/notif-internal/send-email`, {
                 userId,
                 subject: `Order #${order.id} Confirmed`,
                 body: `Thank you for your order totaling $${total}`
-            }, { headers: { 'x-user-id': userId.toString(), 'x-user-role': 'USER' } }));
-        } catch (e) { }
+            }));
+            console.log('DEBUG: Email notification trigger sent successfully.');
+        } catch (e) { 
+            console.error('DEBUG: Failed to trigger notification', e.message);
+        }
 
+        console.log(`DEBUG: Checkout complete for Order #${order.id}`);
         return order;
     }
 

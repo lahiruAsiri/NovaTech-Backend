@@ -9,8 +9,9 @@ export class NotifNotificationsService {
   constructor(private readonly httpService: HttpService) {}
 
   private getHeaders(user: any) {
+    if (!user) return {}; // Return empty if no user (handled by calling service or guard)
     return {
-      'x-user-id': user.userId.toString(),
+      'x-user-id': (user.userId || user.sub)?.toString(),
       'x-user-role': user.role,
     };
   }
@@ -23,8 +24,10 @@ export class NotifNotificationsService {
   }
 
   async sendEmail(user: any, data: any) {
+    // If internal call, the headers might already be there or provided in data
+    const headers = this.getHeaders(user);
     const response = await lastValueFrom(
-      this.httpService.post(`${this.baseUrl}/send-email`, data, { headers: this.getHeaders(user) })
+      this.httpService.post(`${this.baseUrl}/send-email`, data, { headers })
     );
     return response.data;
   }
