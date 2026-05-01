@@ -6,14 +6,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
-
+  // Triggering Azure Admin Deploy1
   const config = new DocumentBuilder()
     .setTitle('E-Commerce API Gateway')
     .setDescription('Central API Gateway for the CTSE Microservices Assignment')
     .setVersion('2.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
