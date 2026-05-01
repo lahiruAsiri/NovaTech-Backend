@@ -76,7 +76,7 @@ const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
 
         // 6. Notify user
         console.log(`DEBUG: Sending order confirmation email for order #${order.id}...`);
-        let notificationStatus = { sent: false, error: null };
+        let notificationStatus: { sent: boolean, error: string } = { sent: false, error: '' };
         try {
             await lastValueFrom(this.httpService.post(`${process.env.GATEWAY_URL || 'http://localhost:3000'}/api/notif-internal/send-email`, {
                 userId,
