@@ -14,7 +14,7 @@ export class OrdersService {
 
         // 2. Validate User Profile from Admin Service
         try {
-const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
+            const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
             const addressReq = await lastValueFrom(this.httpService.get(`${gatewayUrl}/api/admin-internal/profile/${userId}`));
             if (!addressReq.data || !addressReq.data.profile) throw new Error('No profile setup');
         } catch (e) {
@@ -85,7 +85,7 @@ const gatewayUrl = process.env.GATEWAY_URL || 'http://localhost:3000';
             }));
             console.log('DEBUG: Email notification trigger sent successfully.');
             notificationStatus.sent = true;
-        } catch (e) { 
+        } catch (e) {
             console.error('DEBUG: Failed to trigger notification', e.message);
             notificationStatus.error = e.message;
             if (e.response) {
